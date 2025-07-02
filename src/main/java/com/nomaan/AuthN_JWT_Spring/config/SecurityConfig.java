@@ -4,6 +4,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -16,15 +17,23 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable()) // Disable CSRF for H2 console and JWT
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(
-                    "/h2-console/**",
-                    "/",
-                    "/index.html",
-                    "/static/**"
+                        "/h2-console/**",
+                        "/",
+                        "/index.html",
+                        "/api/login",
+                        "/api/register",
+                        "/static/**"
                     ).permitAll() // Allow H2 console
-                .anyRequest().authenticated() // Secure all other endpoints
+                    .requestMatchers("/api/protected").authenticated()
+                    .anyRequest().authenticated() // Secure all other endpoints
             )
             .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin())); // Allow H2 console in iframe
         
         return http.build();
+    }
+
+    @Bean
+    public BCryptPasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 }
