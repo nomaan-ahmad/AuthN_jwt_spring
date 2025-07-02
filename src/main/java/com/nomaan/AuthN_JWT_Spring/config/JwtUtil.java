@@ -45,6 +45,6 @@ public class JwtUtil {
                 .setSigningKey(Base64.getDecoder().decode(secret))
                 .build()
                 .parseClaimsJws(token)
-                .getBody();
+                .getPayload();
     }
 }
