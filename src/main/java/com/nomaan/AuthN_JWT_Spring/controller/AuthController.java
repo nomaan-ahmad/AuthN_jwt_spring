@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,7 @@ import com.nomaan.AuthN_JWT_Spring.repository.UserRepository;
 @RestController
 @RequestMapping("/api")
 public class AuthController {
+
     private final UserRepository userRepository;
     private final JwtUtil jwtUtil;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -66,17 +68,9 @@ public class AuthController {
 
 
     @GetMapping("/protected")
-    public ResponseEntity<String> protectedEndpoint(@RequestHeader("Authorization") String authorization) {
-        try {
-            String token = authorization.replace("bearer", "");
-            if (jwtUtil.validateToken(token)) {
-                String username = jwtUtil.extractUsername(token);
-                return ResponseEntity.ok("Welcome, " + username + "! This is a protected endpoint.");
-            }
+    public String protectedEndpoint(@RequestHeader("Authorization") String authorization) {
+        String username = SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
 
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Credentials");
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Token");
-        }
+        return "WELCOME!" + username + " This is a protected endpoint";
     }
 }
